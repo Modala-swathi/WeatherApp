@@ -22,7 +22,12 @@ def home(request):
 
     response = requests.get(unsplash_url)
     data = response.json()
-    image_url = data["results"][1]["urls"]["regular"]
+    
+    # Safely get image URL with fallback
+    if data.get("results") and len(data["results"]) > 0:
+        image_url = data["results"][0]["urls"]["regular"]
+    else:
+        image_url = "https://via.placeholder.com/1920x1080?text=Weather"
 
     try:
         data=requests.get(url,PARAMS).json()
@@ -35,6 +40,6 @@ def home(request):
         return render(request,'index.html',{'description': description,'icon':icon,'temp':temp,'day':day,'city':city,'exception_occured':False,'image_url':image_url})
     except:
         exception_occured=True
-        messages,error=(request,'Entered data is not available in API')
+        messages.error(request,'Entered data is not available in API')
         day=datetime.date.today()
-        return render(request,'index.html',{'description': 'clear sky','icon':'01d','temp':25,'day':day,'city':'Nalgonda','exception_occured':True,'image_url':image_url})
+        return render(request,'index.html',{'description': 'clear sky','icon':'01d','temp':25,'day':day,'city':city,'exception_occured':True,'image_url':image_url})
